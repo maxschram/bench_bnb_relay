@@ -1,33 +1,41 @@
-/**
- *  Copyright (c) 2015, Facebook, Inc.
- *  All rights reserved.
- *
- *  This source code is licensed under the BSD-style license found in the
- *  LICENSE file in the root directory of this source tree. An additional grant
- *  of patent rights can be found in the PATENTS file in the same directory.
- */
+import Sequelize from 'sequelize';
 
-// Model types
-class User {}
-class Widget {}
+const sequelize = new Sequelize('bench_bnb_development', 'mbs', '', {
+  host: 'localhost',
+  dialect: 'postgres',
 
-// Mock data
-var viewer = new User();
-viewer.id = '1';
-viewer.name = 'Anonymous';
-var widgets = ['What\'s-it', 'Who\'s-it', 'How\'s-it'].map((name, i) => {
-  var widget = new Widget();
-  widget.name = name;
-  widget.id = `${i}`;
-  return widget;
+  pool: {
+    max: 5,
+    min: 0,
+    idle: 10000
+  }
+});
+
+const Bench = sequelize.define('bench', {
+  description: {
+    type: Sequelize.STRING,
+  },
+  lat: {
+    type: Sequelize.FLOAT
+  },
+  lng: {
+    type: Sequelize.FLOAT
+  },
+  seating: {
+    type: Sequelize.INTEGER
+  }
+});
+
+Bench.sync({ force: true}).then(() => {
+  return Bench.create({
+    description: 'A really great bench',
+    lat: 37.7833,
+    lng: -122.4167,
+    seating: 4
+  });
 });
 
 module.exports = {
-  // Export methods that your schema can use to interact with your database
-  getUser: (id) => id === viewer.id ? viewer : null,
-  getViewer: () => viewer,
-  getWidget: (id) => widgets.find(w => w.id === id),
-  getWidgets: () => widgets,
-  User,
-  Widget,
+  Bench,
 };
+
