@@ -74,35 +74,10 @@ var benchType = new GraphQLObjectType({
   }),
   interfaces: [nodeInterface],
 });
-//
-// var widgetType = new GraphQLObjectType({
-//   name: 'Widget',
-//   description: 'A shiny widget',
-//   fields: () => ({
-//     id: globalIdField('Widget'),
-//     name: {
-//       type: GraphQLString,
-//       description: 'The name of the widget',
-//     },
-//   }),
-//   interfaces: [nodeInterface],
-// });
-
-/**
- * Define your own connection types here
- */
-// var {connectionType: widgetConnection} =
-  // connectionDefinitions({name: 'Widget', nodeType: widgetType});
-
-/**
- * This is the type that will be the root of our query,
- * and the entry point into our schema.
- */
 var queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
     node: nodeField,
-    // Add your own root fields here
     bench: {
       type: benchType,
       args: {
