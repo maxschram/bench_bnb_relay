@@ -33,6 +33,7 @@ import {
   Bench,
 } from './database';
 
+import {resolver} from 'graphql-sequelize';
 
 /**
  * We get the node interface and field from the Relay library.
@@ -45,6 +46,10 @@ var {nodeInterface, nodeField} = nodeDefinitions(
     var {type, id} = fromGlobalId(globalId);
     if (type === 'Bench') {
       return getBench(id);
+    } else if (type === 'User') {
+      return getUser(id);
+    } else if (type === 'Test') {
+      return getTest(id);
     } else {
       return null;
     }
@@ -52,11 +57,37 @@ var {nodeInterface, nodeField} = nodeDefinitions(
   (obj) => {
     if (obj instanceof Bench) {
       return benchType;
+    } else if (obj instanceof User) {
+      return userType;
+    } else if (obj instanceof Test) {
+      return testType;
     } else {
       return null;
     }
   }
 );
+//
+// var getBenches = function () {
+//   return Bench.findAll().then(benches => benches);
+// };
+
+class User {};
+var u = new User();
+var getUser = function () { return u; };
+
+class Test {};
+var t = new Test();
+t.id = 1;
+t.text = "asdf";
+
+var t2 = new Test();
+t2.id = 2;
+t.text = "ajdsflk";
+var testsO = {1: t, 2: t2};
+
+var getTest = function (id) {
+  return testsO[id];
+}
 
 /**
  * Define your own types here
@@ -74,18 +105,71 @@ var benchType = new GraphQLObjectType({
   }),
   interfaces: [nodeInterface],
 });
+
+var {
+  connectionType: BenchesConnection
+} = connectionDefinitions({
+  name: 'Bench',
+  nodeType: benchType,
+});
+
+var testType = new GraphQLObjectType({
+  name: "Test",
+  fields: () => ({
+    id: globalIdField('Bench'),
+    text: {type: GraphQLString}
+  }),
+  interfaces: [nodeInterface],
+});
+
+var {
+  connectionType: TestConnection,
+} = connectionDefinitions({
+  name: 'Test',
+  nodeType: testType,
+});
+
+var tests = [
+  {id: 1, text: "Goodbye"},
+  {id: 2, text: "Hello"}
+];
+
+var userType = new GraphQLObjectType({
+  name: 'User',
+  fields: () => ({
+    id: globalIdField('User'),
+    test: {
+      type: TestConnection,
+      args: connectionArgs,
+      resolve: (obj, args) => connectionFromArray(tests, args)
+    },
+    benches: {
+      type: new GraphQLList(benchType),
+      args: {
+      },
+      resolve: resolver(Bench)
+    },
+  }),
+  interfaces: [nodeInterface]
+});
+
 var queryType = new GraphQLObjectType({
   name: 'Query',
   fields: () => ({
     node: nodeField,
+    viewer: {
+      type: userType,
+      resolve: () => getUser()
+    },
     bench: {
       type: benchType,
       args: {
         id: {
-          type: GraphQLString
+          description: 'the id of the bench',
+          type: new GraphQLNonNull(GraphQLInt)
         },
       },
-      resolve: (_, args) => Bench.findById(args.id).then(bench => bench)
+      resolve: resolver(Bench)
     },
   }),
 });
