@@ -10,6 +10,11 @@ class App extends React.Component {
       [name]: parseInt(value)
     });
   }
+  setBounds(bounds) {
+    this.props.relay.setVariables({
+      ...bounds
+    });
+  }
   render() {
     let variables = this.props.relay.variables;
     return (
@@ -25,7 +30,7 @@ class App extends React.Component {
             }
           </ul>
         </section>
-        <Map benches={this.props.viewer.benches.edges}/>
+        <Map onIdle={(bounds) => this.setBounds(bounds)} benches={this.props.viewer.benches.edges}/>
       </div>
     );
   }
@@ -34,12 +39,16 @@ class App extends React.Component {
 export default Relay.createContainer(App, {
   initialVariables: {
     minSeating: 1,
-    maxSeating: 4
+    maxSeating: 4,
+    northEastLat: 0,
+    northEastLng: 0,
+    southWestLat: 0,
+    southWestLng: 0
   },
   fragments: {
     viewer: () => Relay.QL`
     fragment on User {
-      benches(minSeating: $minSeating, maxSeating: $maxSeating, first: 10) {
+      benches(minSeating: $minSeating, maxSeating: $maxSeating, first: 10, northEastLat: $northEastLat, northEastLng: $northEastLng, southWestLat: $southWestLat, southWestLng: $southWestLng) {
         edges {
           node {
            id

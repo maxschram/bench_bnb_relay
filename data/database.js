@@ -27,7 +27,7 @@ const Bench = sequelize.define('bench', {
 });
 
 Bench.sync({ force: true}).then(() => {
- Bench.create({
+  Bench.create({
     description: 'A really great bench',
     lat: 37.7833,
     lng: -122.4167,
@@ -39,6 +39,19 @@ Bench.sync({ force: true}).then(() => {
     lng: -122.4234,
     seating: 3
   });
+  Bench.create({
+    description: 'Nice bench',
+    lat: 37.747,
+    lng: -122.4834,
+    seating: 8
+  });
+  Bench.create({
+    description: 'Cool bench',
+    lat: 37.797,
+    lng: -122.4934,
+    seating: 1
+  });
+
 });
 
 module.exports = {

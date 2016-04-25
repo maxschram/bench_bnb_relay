@@ -107,6 +107,10 @@ var userType = new GraphQLObjectType({
         id: {type: GraphQLInt},
         minSeating: {type: GraphQLInt},
         maxSeating: {type: GraphQLInt},
+        northEastLat: {type: GraphQLFloat},
+        northEastLng: {type: GraphQLFloat},
+        southWestLat: {type: GraphQLFloat},
+        southWestLng: {type: GraphQLFloat},
         ...connectionArgs
       },
       resolve:  (obj, args) => {
@@ -114,6 +118,12 @@ var userType = new GraphQLObjectType({
           where: {
             seating: {
               $between: [args.minSeating, args.maxSeating]
+            },
+            lat: {
+              $between: [args.southWestLat, args.northEastLat]
+            },
+            lng: {
+              $between: [args.southWestLng, args.northEastLng]
             }
           },
         }).then(benches => {

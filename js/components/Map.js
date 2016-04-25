@@ -17,7 +17,17 @@ class Map extends React.Component {
             }
             googleMapElement={
               <GoogleMap
-                ref={(map) => console.log(map)}
+                ref={m => this.map = m}
+                onIdle={() => {
+                  let mapBounds = this.map.getBounds();
+                  let bounds = {
+                    northEastLat: mapBounds.getNorthEast().lat(),
+                    northEastLng: mapBounds.getNorthEast().lng(),
+                    southWestLat: mapBounds.getSouthWest().lat(),
+                    southWestLng: mapBounds.getSouthWest().lng()
+                  };
+                  this.props.onIdle(bounds);
+                }}
                 defaultZoom={12}
                 defaultCenter={{lat: 37.753, lng: -122.457}}
               >
